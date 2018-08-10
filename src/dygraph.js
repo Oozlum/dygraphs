@@ -636,7 +636,7 @@ Dygraph.prototype.toDataXCoord = function(x) {
   var scale = this.attributes_.getForAxis("axisScale", 'x');
   var rsv = (x - area.x) / area.w;
 
-  return scale.scaledValueToDataPoint(this, 'x', rsv, range[0], range[1], false);
+  return scale.relativeScaledValueToDataPoint(this, 'x', rsv, range[0], range[1], false);
 };
 
 /**
@@ -656,7 +656,7 @@ Dygraph.prototype.toDataYCoord = function(y, axis) {
   var scale = this.attributes_.getForAxis("axisScale", axis);
   var rsv = (y - area.y) / area.h;
 
-  return scale.scaledValueToDataPoint(this, axis, rsv, range[0], range[1], true);
+  return scale.relativeScaledValueToDataPoint(this, axis, rsv, range[0], range[1], true);
 };
 
 /**
@@ -684,7 +684,7 @@ Dygraph.prototype.toPercentYCoord = function(y, axis) {
   var range = this.yAxisRange(axis);
   var scale = this.attributes_.getForAxis("axisScale", axis);
 
-  return scale.dataPointToScaledValue(this, axis, y, range[0], range[1], true);
+  return scale.dataPointToRelativeScaledValue(this, axis, y, range[0], range[1], true);
 };
 
 /**
@@ -708,7 +708,7 @@ Dygraph.prototype.toPercentXCoord = function(x) {
   var range = this.xAxisRange();
   var scale = this.attributes_.getForAxis("axisScale", 'x');
 
-  return scale.dataPointToScaledValue(this, 'x', x, range[0], range[1], false);
+  return scale.dataPointToRelativeScaledValue(this, 'x', x, range[0], range[1], false);
 };
 
 /**

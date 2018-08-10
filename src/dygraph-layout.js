@@ -190,13 +190,6 @@ DygraphLayout.prototype._evaluateLimits = function() {
   var xrange = xlimits[1] - xlimits[0];
   this._xAxis.scale = (xrange !== 0 ? 1 / xrange : 1.0);
 
-  var x_scale = this.dygraph_.attributes_.getForAxis('axisScale', 'x');
-  if (x_scale.rangeError(this.dygraph_, 'x', this._xAxis.minval, this._xAxis.maxval)) {
-    console.error('X axis of graph at ' + this._xAxis.g +
-                  ' can\'t be displayed in requested scale for range [' +
-                  this._xAxis.minval + ' - ' + this._xAxis.maxval + ']');
-  }
-
   for (var i = 0; i < this.yAxes_.length; i++) {
     var axis = this.yAxes_[i];
     var y_scale = this.dygraph_.attributes_.getForAxis('axisScale', i);
@@ -232,12 +225,12 @@ DygraphLayout.prototype._evaluateLineCharts = function() {
       var point = points[j];
 
       // Range from 0-1 where 0 represents left and 1 represents right.
-      point.x = x_scale.dataPointToScaledValue(this.dygraph_, 'x', point.xval,
+      point.x = x_scale.dataPointToRelativeScaledValue(this.dygraph_, 'x', point.xval,
               this._xAxis.minval, this._xAxis.maxval, false);
       // Range from 0-1 where 0 represents top and 1 represents bottom
       var yval = point.yval;
       if (isStacked) {
-        point.y_stacked = y_scale.dataPointToScaledValue(this.dygraph_, y_axis_id, point.yval_stacked,
+        point.y_stacked = y_scale.dataPointToRelativeScaledValue(this.dygraph_, y_axis_id, point.yval_stacked,
                 y_axis.minyval, y_axis.maxyval, true);
         if (yval !== null && !isNaN(yval)) {
           yval = point.yval_stacked;
@@ -249,7 +242,7 @@ DygraphLayout.prototype._evaluateLineCharts = function() {
           point.yval = NaN;
         }
       }
-      point.y = y_scale.dataPointToScaledValue(this.dygraph_, y_axis_id, point.yval,
+      point.y = y_scale.dataPointToRelativeScaledValue(this.dygraph_, y_axis_id, point.yval,
               y_axis.minyval, y_axis.maxyval, true);
     }
 

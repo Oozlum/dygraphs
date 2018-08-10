@@ -36,7 +36,11 @@
       };
 
       var scaler = {
-        dataPointToScaledValue: function(graph, axis, value, range_start, range_end, invert) {
+		dataPointToScaledValue: function(graph, axis, value) {
+			return value;
+		},
+
+        dataPointToRelativeScaledValue: function(graph, axis, value, range_start, range_end, invert) {
           if (graph.isZoomed())
             return Dygraph.DefaultScale.dataPointToScaledValue(graph, axis, value, range_start, range_end, invert);
 
@@ -62,7 +66,11 @@
           }
         },
 
-        scaledValueToDataPoint: function(graph, axis, rsv, range_start, range_end, invert) {
+		scaledValueToDataPoint: function(graph, axis, value) {
+			return value;
+		},
+
+        relativeScaledValueToDataPoint: function(graph, axis, rsv, range_start, range_end, invert) {
           if (graph.isZoomed())
             return Dygraph.DefaultScale.scaledValueToDataPoint(graph, axis, rsv, range_start, range_end, invert);
 

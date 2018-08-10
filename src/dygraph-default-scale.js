@@ -21,6 +21,34 @@ import * as utils from './dygraph-utils';
 var DygraphDefaultScale = {};
 
 /**
+ * Convert a scaled value back to the original data value.
+ *
+ * @param {Dygraph} graph
+ * @param {number} axis the axis to which the data value has been scaled.
+ * @param {number} rsv relative scale value.  A value between 0 and 1 which represents the value's position on the axis scale.
+ */
+DygraphDefaultScale.scaledValueToDataPoint = function(graph, axis, sv) {
+  if (!graph.attributes_.getForAxis("logscale", axis))
+    return sv;
+
+  return Math.pow(10, sv);
+};
+
+/**
+ * Convert a data value to its scaled equivalent.
+ *
+ * @param {Dygraph} graph
+ * @param {number} axis the axis to which the data value has been scaled.
+ * @param {number} the data value to be scaled.
+ */
+DygraphDefaultScale.dataPointToScaledValue = function(graph, axis, v) {
+  if (!graph.attributes_.getForAxis("logscale", axis))
+    return v;
+
+  return utils.log10(v);
+};
+
+/**
  * Convert a scaled value back to a data value in the given range.
  *
  * @param {Dygraph} graph
@@ -30,7 +58,7 @@ var DygraphDefaultScale = {};
  * @param {number} range_end the ending data value of the axis range.
  * @param invert true if the scale is inverted, so that rsv 0 represents range_end, not range_start.
  */
-DygraphDefaultScale.scaledValueToDataPoint = function(graph, axis, rsv, range_start, range_end, invert) {
+DygraphDefaultScale.relativeScaledValueToDataPoint = function(graph, axis, rsv, range_start, range_end, invert) {
   var range_width = range_end - range_start;
   var range_value = invert ? range_end : range_start;
 
@@ -60,7 +88,7 @@ DygraphDefaultScale.scaledValueToDataPoint = function(graph, axis, rsv, range_st
  * @param invert true if the scale is inverted, so that scaled value 0 represents range_end, not range_start.
  * @return {number} the scaled value, which lies between 0 and 1 and which represents the value's position within the range.
  */
-DygraphDefaultScale.dataPointToScaledValue = function(graph, axis, value, range_start, range_end, invert) {
+DygraphDefaultScale.dataPointToRelativeScaledValue = function(graph, axis, value, range_start, range_end, invert) {
   var scaled_value = invert ? 1.0 : 0.0;
 
   if (!graph.attributes_.getForAxis("logscale", axis)) {

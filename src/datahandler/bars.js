@@ -100,9 +100,9 @@ BarsHandler.prototype.onLineEvaluated = function(graph, points, axis, axis_id, s
   for (var j = 0; j < points.length; j++) {
     // Copy over the error terms
     point = points[j];
-    point.y_top = scaler.dataPointToScaledValue(graph, axis_id, point.yval_minus,
+    point.y_top = scaler.dataPointToRelativeScaledValue(graph, axis_id, point.yval_minus,
             axis.minyval, axis.maxyval, true);
-    point.y_bottom = scaler.dataPointToScaledValue(graph, axis_id, point.yval_plus,
+    point.y_bottom = scaler.dataPointToRelativeScaledValue(graph, axis_id, point.yval_plus,
             axis.minyval, axis.maxyval, true);
   }
 };

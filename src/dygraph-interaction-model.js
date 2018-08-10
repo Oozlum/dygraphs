@@ -71,13 +71,10 @@ DygraphInteraction.startPan = function(event, g, context) {
   context.isPanning = true;
   var xRange = g.xAxisRange();
 
-  if (g.getOptionForAxis("logscale", "x")) {
-    context.initialLeftmostDate = utils.log10(xRange[0]);
-    context.dateRange = utils.log10(xRange[1]) - utils.log10(xRange[0]);
-  } else {
-    context.initialLeftmostDate = xRange[0];    
-    context.dateRange = xRange[1] - xRange[0];
-  }
+  var x_scale = g.attributes_.getForAxis("axisScale", "x");
+  context.initialLeftmostDate = x_scale.dataPointToScaledValue(g, "x", xRange[0]);
+  context.dateRange = x_scale.dataPointToScaledValue(g, "x", xRange[1]) - context.initialLeftmostDate;
+
   context.xUnitsPerPixel = context.dateRange / (g.plotter_.area.w - 1);
 
   if (g.getNumericOption("panEdgeFraction")) {
@@ -122,14 +119,9 @@ DygraphInteraction.startPan = function(event, g, context) {
     var yRange = g.yAxisRange(i);
     // TODO(konigsberg): These values should be in |context|.
     // In log scale, initialTopValue, dragValueRange and unitsPerPixel are log scale.
-    var logscale = g.attributes_.getForAxis("logscale", i);
-    if (logscale) {
-      axis_data.initialTopValue = utils.log10(yRange[1]);
-      axis_data.dragValueRange = utils.log10(yRange[1]) - utils.log10(yRange[0]);
-    } else {
-      axis_data.initialTopValue = yRange[1];
-      axis_data.dragValueRange = yRange[1] - yRange[0];
-    }
+    var y_scale = g.attributes_.getForAxis("axisScale", i);
+    axis_data.initialTopValue = y_scale.dataPointToScaledValue(g, i, yRange[1]);
+    axis_data.dragValueRange = axis_data.initialTopValue - y_scale.dataPointToScaledValue(g, i, yRange[0]);
     axis_data.unitsPerPixel = axis_data.dragValueRange / (g.plotter_.area.h - 1);
     context.axes.push(axis_data);
 
@@ -170,12 +162,9 @@ DygraphInteraction.movePan = function(event, g, context) {
     }
   }
 
-  if (g.getOptionForAxis("logscale", "x")) {
-    g.dateWindow_ = [ Math.pow(utils.LOG_SCALE, minDate),
-                      Math.pow(utils.LOG_SCALE, maxDate) ];
-  } else {
-    g.dateWindow_ = [minDate, maxDate];    
-  }
+  var x_scale = g.attributes_.getForAxis("axisScale", "x");
+  g.dateWindow_ = [ x_scale.scaledValueToDataPoint(g, "x", minDate),
+                    x_scale.scaledValueToDataPoint(g, "x", maxDate) ];
 
   // y-axis scaling is automatic unless this is a full 2D pan.
   if (context.is2DPan) {
@@ -203,12 +192,9 @@ DygraphInteraction.movePan = function(event, g, context) {
           minValue = maxValue - axis_data.dragValueRange;
         }
       }
-      if (g.attributes_.getForAxis("logscale", i)) {
-        axis.valueWindow = [ Math.pow(utils.LOG_SCALE, minValue),
-                             Math.pow(utils.LOG_SCALE, maxValue) ];
-      } else {
-        axis.valueWindow = [ minValue, maxValue ];
-      }
+      var y_scale = g.attributes_.getForAxis("axisScale", i);
+      axis.valueWindow = [ y_scale.scaledValueToDataPoint(g, i, minValue),
+                           y_scale.scaledValueToDataPoint(g, i, maxValue) ];
     }
   }
 

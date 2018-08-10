@@ -44,14 +44,16 @@
     <script type="text/javascript">
       gs = [];
       var blockRedraw = false;
+      var options = {
+              rollPeriod: 7,
+              errorBars: true,
+      }
       for (var i = 1; i <= 4; i++) {
+        if (i === 3) options.showRangeSelector = true;
         gs.push(
           new Dygraph(
             document.getElementById("div" + i),
-            NoisyData, {
-              rollPeriod: 7,
-              errorBars: true,
-            }
+            NoisyData, options
           )
         );
       }
