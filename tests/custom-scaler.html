@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="../css/dygraph.css">
+    <title>custom scaler demo</title>
+    <script type="text/javascript" src="../dist/dygraph.js"></script>
+  </head>
+  <body>
+    <h2>Custom Scaler Demo</h2>
+    <table><tr><td>
+    <div id="demodiv" style="width: 600px;"></div>
+    </td><td valign=top>
+    <div id="status" style="width:200px; font-size:0.8em; padding-top:5px;"></div>
+    </td>
+    </tr></table>
+    <script type="text/javascript">
+      var scale_bins = [
+        { width: 0.25 /* percent */, duration: 5000 /* millisecs */ },
+        { width: 0.25, duration: 10000 },
+        { width: 0.25, duration: 20000 },
+        { width: 0.25 }
+      ];
+
+      var start_of_time = (new Date()).getTime() - 45000;
+
+	  function scale_value_to_range(value, src_range, dst_range) {
+        src_range.width = src_range.end - src_range.start;
+		dst_range.width = dst_range.end - dst_range.start;
+
+		if (value < src_range.start || value > src_range.end)
+			return NaN;
+
+		var range_ratio = dst_range.width / src_range.width;
+		var src_offset = value - src_range.start;
+		return dst_range.start + (src_offset * range_ratio);
+      };
+
+      var scaler = {
+        dataPointToScaledValue: function(graph, axis, value, range_start, range_end, invert) {
+          if (graph.isZoomed())
+            return Dygraph.DefaultScale.dataPointToScaledValue(graph, axis, value, range_start, range_end, invert);
+
+          var now = (new Date()).getTime();
+          var bin_range = { start: 0, end: 1 };
+          var value_range = { start: now, end: now };
+
+          for (var i = 0; i != scale_bins.length; ++i) {
+            var bin = scale_bins[i];
+            if (bin.duration)
+                value_range.start = value_range.start - bin.duration;
+            else
+                value_range.start = start_of_time;
+
+            bin_range.start = bin_range.end - bin.width;
+
+            var data = scale_value_to_range(value, value_range, bin_range);
+            if (!isNaN(data))
+                return data;
+
+            value_range.end = value_range.start;
+            bin_range.end = bin_range.start;
+          }
+        },
+
+        scaledValueToDataPoint: function(graph, axis, rsv, range_start, range_end, invert) {
+          if (graph.isZoomed())
+            return Dygraph.DefaultScale.scaledValueToDataPoint(graph, axis, rsv, range_start, range_end, invert);
+
+          var now = (new Date()).getTime();
+          var bin_range = { start: 0, end: 1 };
+          var value_range = { start: now, end: now };
+
+          for (var i = 0; i != scale_bins.length; ++i) {
+            var bin = scale_bins[i];
+            if (bin.duration)
+                value_range.start = value_range.start - bin.duration;
+            else
+                value_range.start = start_of_time;
+
+            bin_range.start = bin_range.end - bin.width;
+
+            var data = scale_value_to_range(rsv, bin_range, value_range);
+            if (!isNaN(data))
+                return data;
+
+            value_range.end = value_range.start;
+            bin_range.end = bin_range.start;
+          }
+        },
+
+        rangeError: function(graph, axis, range_start, range_end) {
+          return false;
+        }
+      };
+
+      function get_now() {
+        var now = (new Date()).getTime();
+        return new Date(Math.floor(now / 1000) * 1000);
+      }
+
+      var graph_data = [ [get_now(), 0], [get_now(), 0] ];
+      var options = {
+        stepPlot: true,
+        fillGraph: true,
+        drawPoints: true,
+        showRoller: false,
+        valueRange: [0, 1],
+        labels: ['Time', 'State'],
+        axes: {
+          x: {
+            axisScale: scaler
+          }
+        }
+      };
+
+      var graph = new Dygraph(
+              document.getElementById("demodiv"),
+			  graph_data,
+			  options
+         );
+
+      setInterval(function() {
+        var now = get_now();
+        var value = Math.floor(Math.random() * 2);
+
+        graph_data[graph_data.length - 1][0] = now;
+		if (graph_data[graph_data.length - 1][1] !== value)
+        {
+			graph_data[graph_data.length - 1][1] = value;
+	        graph_data.push([now, value]);
+        }
+
+		if (start_of_time + 1000 <= graph_data[0][0].getTime())
+			start_of_time += 1000;
+
+		if (!graph.isZoomed())
+	   	    graph.updateOptions( { 'file': graph_data } );
+      }, 1000);
+    </script>
+</body>
+</html>

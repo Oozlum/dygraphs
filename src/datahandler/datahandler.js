@@ -178,12 +178,14 @@ handler.prototype.getExtremeYValues = function(series, dateWindow, options) {
  * calculated before the series is drawn. Here normalized positioning data
  * should be calculated for the extras of each point.
  *
+ * @param {!Object} the graph object
  * @param {!Array.<Dygraph.PointType>} points The points passed to
  *          the plotter.
  * @param {!Object} axis The axis on which the series will be plotted.
- * @param {!boolean} logscale Weather or not to use a logscale.
+ * @param {!number} axis_id the axis id
+ * @param {!boolean} scaler the scaler used for the axis.
  */
-handler.prototype.onLineEvaluated = function(points, axis, logscale) {
+handler.prototype.onLineEvaluated = function(graph, points, axis, axis_id, scaler) {
 };
 
 /**

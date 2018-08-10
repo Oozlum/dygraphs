@@ -677,6 +677,12 @@ OPTIONS_REFERENCE =  // <JSON>
     "type": "string",
     "description" : "Color of the x- and y-axis lines. Accepts any value which the HTML canvas strokeStyle attribute understands, e.g. 'black' or 'rgb(0, 100, 255)'."
   },
+  "axisScale": {
+    "default": "DygraphDefaultScale",
+    "labels": ["Axis display"],
+    "type": "DygraphDefaultScale",
+    "description" : "Custom scaling object used for transforming values applied to an axis."
+  },
   "fillAlpha": {
     "default": "0.15",
     "labels": ["Error Bars", "Data Series Colors"],

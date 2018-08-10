@@ -69,6 +69,8 @@ import RangeSelectorPlugin from './plugins/range-selector';
 
 import GVizChart from './dygraph-gviz';
 
+import DygraphDefaultScale from './dygraph-default-scale';
+
 "use strict";
 
 /**
@@ -116,6 +118,9 @@ Dygraph.Plotters = DygraphCanvasRenderer._Plotters;
 
 // Used for initializing annotation CSS rules only once.
 Dygraph.addedAnnotationCSS = false;
+
+/* default axis scaling object */
+Dygraph.DefaultScale = DygraphDefaultScale;
 
 /**
  * Initializes the Dygraph. This creates a new DIV and constructs the PlotKit
@@ -627,14 +632,11 @@ Dygraph.prototype.toDataXCoord = function(x) {
   }
 
   var area = this.plotter_.area;
-  var xRange = this.xAxisRange();
+  var range = this.xAxisRange();
+  var scale = this.attributes_.getForAxis("axisScale", 'x');
+  var rsv = (x - area.x) / area.w;
 
-  if (!this.attributes_.getForAxis("logscale", 'x')) {
-    return xRange[0] + (x - area.x) / area.w * (xRange[1] - xRange[0]);
-  } else {
-    var pct = (x - area.x) / area.w;
-    return utils.logRangeFraction(xRange[0], xRange[1], pct);
-  }
+  return scale.scaledValueToDataPoint(this, 'x', rsv, range[0], range[1], false);
 };
 
 /**
@@ -647,19 +649,14 @@ Dygraph.prototype.toDataYCoord = function(y, axis) {
   if (y === null) {
     return null;
   }
+  if (typeof(axis) == "undefined") axis = 0;
 
   var area = this.plotter_.area;
-  var yRange = this.yAxisRange(axis);
+  var range = this.yAxisRange(axis);
+  var scale = this.attributes_.getForAxis("axisScale", axis);
+  var rsv = (y - area.y) / area.h;
 
-  if (typeof(axis) == "undefined") axis = 0;
-  if (!this.attributes_.getForAxis("logscale", axis)) {
-    return yRange[0] + (area.y + area.h - y) / area.h * (yRange[1] - yRange[0]);
-  } else {
-    // Computing the inverse of toDomCoord.
-    var pct = (y - area.y) / area.h;
-    // Note reversed yRange, y1 is on top with pct==0.
-    return utils.logRangeFraction(yRange[1], yRange[0], pct);
-  }
+  return scale.scaledValueToDataPoint(this, axis, rsv, range[0], range[1], true);
 };
 
 /**
@@ -684,21 +681,10 @@ Dygraph.prototype.toPercentYCoord = function(y, axis) {
   }
   if (typeof(axis) == "undefined") axis = 0;
 
-  var yRange = this.yAxisRange(axis);
+  var range = this.yAxisRange(axis);
+  var scale = this.attributes_.getForAxis("axisScale", axis);
 
-  var pct;
-  var logscale = this.attributes_.getForAxis("logscale", axis);
-  if (logscale) {
-    var logr0 = utils.log10(yRange[0]);
-    var logr1 = utils.log10(yRange[1]);
-    pct = (logr1 - utils.log10(y)) / (logr1 - logr0);
-  } else {
-    // yRange[1] - y is unit distance from the bottom.
-    // yRange[1] - yRange[0] is the scale of the range.
-    // (yRange[1] - y) / (yRange[1] - yRange[0]) is the % from the bottom.
-    pct = (yRange[1] - y) / (yRange[1] - yRange[0]);
-  }
-  return pct;
+  return scale.dataPointToScaledValue(this, axis, y, range[0], range[1], true);
 };
 
 /**
@@ -719,20 +705,10 @@ Dygraph.prototype.toPercentXCoord = function(x) {
     return null;
   }
 
-  var xRange = this.xAxisRange();
-  var pct;
-  var logscale = this.attributes_.getForAxis("logscale", 'x') ;
-  if (logscale === true) {  // logscale can be null so we test for true explicitly.
-    var logr0 = utils.log10(xRange[0]);
-    var logr1 = utils.log10(xRange[1]);
-    pct = (utils.log10(x) - logr0) / (logr1 - logr0);
-  } else {
-    // x - xRange[0] is unit distance from the left.
-    // xRange[1] - xRange[0] is the scale of the range.
-    // The full expression below is the % from the left.
-    pct = (x - xRange[0]) / (xRange[1] - xRange[0]);
-  }
-  return pct;
+  var range = this.xAxisRange();
+  var scale = this.attributes_.getForAxis("axisScale", 'x');
+
+  return scale.dataPointToScaledValue(this, 'x', x, range[0], range[1], false);
 };
 
 /**

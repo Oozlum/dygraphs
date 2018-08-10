@@ -4,6 +4,7 @@ import * as DygraphTickers from './dygraph-tickers';
 import DygraphInteraction from './dygraph-interaction-model';
 import DygraphCanvasRenderer from './dygraph-canvas';
 import * as utils from './dygraph-utils';
+import DygraphDefaultScale from './dygraph-default-scale';
 
 // Default attribute values.
 var DEFAULT_ATTRS = {
@@ -100,6 +101,7 @@ var DEFAULT_ATTRS = {
       axisLabelWidth: 60,
       axisLabelFormatter: utils.dateAxisLabelFormatter,
       valueFormatter: utils.dateValueFormatter,
+	  axisScale: DygraphDefaultScale,
       drawGrid: true,
       drawAxis: true,
       independentTicks: true,
@@ -110,6 +112,7 @@ var DEFAULT_ATTRS = {
       pixelsPerLabel: 30,
       valueFormatter: utils.numberValueFormatter,
       axisLabelFormatter: utils.numberAxisLabelFormatter,
+	  axisScale: DygraphDefaultScale,
       drawGrid: true,
       drawAxis: true,
       independentTicks: true,
@@ -120,6 +123,7 @@ var DEFAULT_ATTRS = {
       pixelsPerLabel: 30,
       valueFormatter: utils.numberValueFormatter,
       axisLabelFormatter: utils.numberAxisLabelFormatter,
+	  axisScale: DygraphDefaultScale,
       drawAxis: true,  // only applies when there are two axes of data.
       drawGrid: false,
       independentTicks: false,

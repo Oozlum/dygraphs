@@ -94,13 +94,16 @@ BarsHandler.prototype.getExtremeYValues = function(series, dateWindow, options) 
 };
 
 /** @inheritDoc */
-BarsHandler.prototype.onLineEvaluated = function(points, axis, logscale) {
+BarsHandler.prototype.onLineEvaluated = function(graph, points, axis, axis_id, scaler) {
+  // FIXME: (CJS): probably broken!
   var point;
   for (var j = 0; j < points.length; j++) {
     // Copy over the error terms
     point = points[j];
-    point.y_top = DygraphLayout.calcYNormal_(axis, point.yval_minus, logscale);
-    point.y_bottom = DygraphLayout.calcYNormal_(axis, point.yval_plus, logscale);
+    point.y_top = scaler.dataPointToScaledValue(graph, axis_id, point.yval_minus,
+            axis.minyval, axis.maxyval, true);
+    point.y_bottom = scaler.dataPointToScaledValue(graph, axis_id, point.yval_plus,
+            axis.minyval, axis.maxyval, true);
   }
 };
 
